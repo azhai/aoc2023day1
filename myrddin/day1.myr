@@ -1,0 +1,68 @@
+/**
+ * Advent of code 2003 : day 1
+ */
+
+use std
+use bio
+use regex
+
+const numbers = [ "zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine" ]
+
+/*
+ * Replace the numbers
+ */
+const replace_numbers = {line: byte[:] -> byte[:]
+    for var i = 0; i < numbers.len; i++
+        var txt = numbers[i]
+        var pl = std.fmt("{}{}{}", txt, i, txt)
+        line = std.strreplace(line, txt, pl)
+    ;;
+    -> line
+}
+
+/*
+ * Find the number
+ */
+const find_num = {re : regex.regex#, line: byte[:] -> int
+    var num = 0
+    match regex.exec(re, line)
+    | `std.Some matches:
+        // std.put("line {}\nmatches {} {}\n", line, matches[0], matches[1])
+        num = std.get(std.intparse(matches[1]))
+        regex.matchfree(matches) // Don't forget
+    | `std.None:
+        num = 0
+    ;;
+    -> num
+}
+
+const solve_part = {file_name: byte[:], read_text: bool -> int
+    var re1 = std.try(regex.compile("^\\D*(\\d)"))
+    var re2 = std.try(regex.compile("(\\d)\\D*$"))
+    var total = 0
+    match bio.open(file_name, bio.Rd)
+    | `std.Err e:
+        total = 0
+    | `std.Ok fl:
+        for line : bio.byline(fl)
+            if read_text
+                line = replace_numbers(line)
+            ;;
+            total += find_num(re1, line) * 10 + find_num(re2, line)
+        ;;
+        bio.close(fl) // Don't forget
+    ;;
+    // Don't forget
+    regex.free(re1)
+    regex.free(re2)
+    -> total
+}
+
+const main = {args : byte[:][:]
+    var filename = "input.txt"
+    if args.len > 1
+        filename = args[1]
+    ;;
+    std.put("{}\n", solve_part(filename, false))
+    std.put("{}\n", solve_part(filename, true))
+}
