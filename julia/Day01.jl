@@ -1,4 +1,4 @@
-module Day1
+module Day01
 
     __init__() = main()
     firstlast(s::AbstractString) = length(s) > 0 ? s[1] * s[end] : "0"

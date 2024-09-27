@@ -5,4 +5,4 @@
 # > Pkg.add("StaticCompiler")
 # > Pkg.add("StaticTools")
 
-# julia --project=. -L 'day1.jl' -e 'using StaticCompiler,; compile_executable(Day1.main, ())'
+# julia --project=. -L 'Day01.jl' -e 'using StaticCompiler,; compile_executable(Day01.main, ())'

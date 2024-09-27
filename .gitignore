@@ -14,6 +14,8 @@ target/
 
 a.out
 bin/day1-*
+fsharp/bin/
+fsharp/obj/
 ocaml/_build/
 ocaml/*.install
 ols.json
