@@ -6,6 +6,7 @@
 python3 python/day1.py input.txt
 hyperfine -w 2 'python3 -OO python/day1.py input.txt' \
                 'julia --optimize=3 --debug-info=0 julia/Day01.jl input.txt' \
+                'julia --optimize=3 --debug-info=0 julia/day1.jl' \
                 ./bin/day1-fs
 
 hyperfine -w 2 -r 300 'gawk -O -f awk/day1.awk input.txt' \

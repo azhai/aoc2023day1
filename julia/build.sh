@@ -2,6 +2,7 @@
 
 # julia
 # > using Pkg
+# > Pkg.add("StaticArrays")
 # > Pkg.add("StaticCompiler")
 # > Pkg.add("StaticTools")
 
