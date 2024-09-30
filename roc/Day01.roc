@@ -4,25 +4,32 @@ interface Day01
         part2,
     ]
     imports [
-        pf.File,
         parser.String.{ anyCodeunit, digit, parseStr, string },
         parser.Core.{ flatten, many, map, oneOf },
-        #"../input.txt" as puzzleInput : Str,
     ]
 
-#readInput = \filename ->
-#    Task.await (File.readUtf8 filename) \data ->
-#        data |> Result.withDefault puzzleInput
+sumNumbers = \state, values ->
+    when List.first values is
+        Err ListWasEmpty -> Ok(state)
+        Ok first ->
+            List.last values |> Result.try \last ->
+                Ok(state |> List.append (first * 10 + last))
 
-part1 = \filename ->
-    when File.readUtf8! filename is
-        Err _ -> "0"
-        Ok puzzleInput ->
-            solvePart1 puzzleInput puzzleParser1
+mapCharList = \cl ->
+    cl
+    |> List.walk
+        []
+        (\state, elem ->
+            when elem is
+                Digit n -> state |> List.append n
+                Other -> state
+        )
+
+part1 = \content ->
+    solvePart1 content puzzleParser1
 
 solvePart1 = \input, parser ->
-    when
-        input
+    result = input
         |> Str.split "\n"
         |> List.dropIf Str.isEmpty
         |> List.walkTry
@@ -30,62 +37,13 @@ solvePart1 = \input, parser ->
             (\state, line ->
                 when parser |> parseStr line is
                     Ok values ->
-                        (
-                            List.first values
-                            |> Result.try (\first -> List.last values |> Result.try (\last -> Ok (state |> List.append (first * 10 + last))))
-                        )
-
+                        sumNumbers state values
+                    Err (ParsingFailure "No digit found") ->
+                        Ok(state |> List.append 0)
                     Err e -> Err e
             )
-    is
-        Err _ -> "error"
-        Ok calibrationValues ->
-            calibrationValues |> List.sum |> Num.toStr
-
-exampleData1 =
-    """
-    1abc2
-    pqr3stu8vwx
-    a1b2c3d4e5f
-    treb7uchet
-    """
-
-expect solvePart1 exampleData1 puzzleParser1 == "142"
-
-part2 = \filename ->
-    when File.readUtf8! filename is
-        Err _ -> "0"
-        Ok puzzleInput ->
-            solvePart2 puzzleInput puzzleParser2 puzzleParser2Backwards
-
-solvePart2 = \input, parser, parserBackwards ->
-    when
-        input
-        |> Str.split "\n"
-        |> List.dropIf Str.isEmpty
-        |> List.walkTry
-            []
-            (\state, line ->
-                when parser |> parseStr line is
-                    Ok values ->
-                        (
-                            List.first values
-                            |> Result.try
-                                (\first ->
-                                    reverseLine = line |> Str.toUtf8 |> List.reverse |> Str.fromUtf8 |> Result.withDefault ""
-                                    parserBackwards
-                                    |> parseStr reverseLine
-                                    |> Result.try
-                                        (\values2 ->
-                                            List.first values2 |> Result.try (\last -> Ok (state |> List.append (first * 10 + last)))
-
-                                        )
-                                )
-                        )
-
-                    Err e -> Err e
-            )
-    is
+    dbg result
+    when result is
         Err _ -> "error"
         Ok calibrationValues ->
             calibrationValues |> List.sum |> Num.toStr
@@ -107,6 +65,53 @@ puzzleParser1 =
                 Ok newList
         )
     |> flatten
+
+exampleData1 =
+    """
+    1abc2
+    pqr3stu8vwx
+    a1b2c3d4e5f
+    treb7uchet
+    """
+
+expect solvePart1 exampleData1 puzzleParser1 == "142"
+
+part2 = \content ->
+    solvePart2 content puzzleParser2 puzzleParser2Backwards
+
+solvePart2 = \input, parser, parserBackwards ->
+    result = input
+        |> Str.split "\n"
+        |> List.dropIf Str.isEmpty
+        |> List.walkTry
+            []
+            (\state, line ->
+                when parser |> parseStr line is
+                    Ok values ->
+                        (
+                            List.first values
+                            |> Result.try
+                                (\first ->
+                                    reverseLine = line |> Str.toUtf8 |> List.reverse |> Str.fromUtf8 |> Result.withDefault ""
+                                    parserBackwards
+                                    |> parseStr reverseLine
+                                    |> Result.try
+                                        (\values2 ->
+                                            List.first values2 |> Result.try
+                                                (\last ->
+                                                    Ok (state |> List.append (first * 10 + last))
+                                                )
+                                        )
+                                )
+                        )
+
+                    Err e -> Err e
+            )
+    dbg result
+    when result is
+        Err _ -> "error"
+        Ok calibrationValues ->
+            calibrationValues |> List.sum |> Num.toStr
 
 puzzleParser2 =
     many
@@ -161,16 +166,6 @@ puzzleParser2Backwards =
                 Ok newList
         )
     |> flatten
-
-mapCharList = \cl ->
-    cl
-    |> List.walk
-        []
-        (\state, elem ->
-            when elem is
-                Digit n -> state |> List.append n
-                Other -> state
-        )
 
 exampleData2 =
     """

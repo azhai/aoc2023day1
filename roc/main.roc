@@ -7,15 +7,30 @@ app "aoc2023day01"
     }
     imports [
         pf.Arg,
+        pf.File,
+        pf.Stderr,
         pf.Stdout,
         Day01,
     ]
     provides [main] to pf
 
-main =
-    args = Arg.list! {}
-    file =
-        when args |> List.get 1 is
-            Ok name -> name
-            Err _ -> "../input.txt"
-    Stdout.line! "\(Day01.part1 file)\n\(Day01.part2 file)"
+
+main : Task {} _
+main = run |> Task.onErr \err ->
+    Stderr.line! "Error: $(Inspect.toStr err)"
+
+run : Task {} _
+run =
+    file = readArgs!
+    when readInput! file is
+        data if Str.trim data != "" ->
+            Stdout.line! "$(Day01.part1 data)\n$(Day01.part2 data)"
+        _ -> Stdout.line! "0"
+
+readArgs =
+    when Arg.list! {} is
+        [_, filename, ..] -> Task.ok filename
+        _ -> Task.ok "input.txt"
+
+readInput = \filename ->
+    File.readUtf8 filename |> Task.onErr \_ -> Task.ok ""
