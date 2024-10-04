@@ -5,5 +5,6 @@
 # opam install ocaml dune
 # opam install base core stdio
 
-dune clean && dune build --release
-\cp -f _build/install/default/bin/day1 ../bin/day1-ml
+dune clean && dune build @fmt
+dune promote && dune build --release --force --verbose
+\cp -f _build/default/bin/main.exe ../bin/day1-ml

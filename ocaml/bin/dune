@@ -1,4 +1,10 @@
 (executable
- (public_name day1)
  (name main)
+ (public_name day1)
  (libraries day1 base stdio str))
+
+ (env
+   (dev
+     (flags (:standard -w +42)))
+   (release
+     (ocamlopt_flags (-no-g -O3))))

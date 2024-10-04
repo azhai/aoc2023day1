@@ -19,3 +19,4 @@ fsharp/obj/
 ocaml/_build/
 ocaml/*.install
 ols.json
+roc/main

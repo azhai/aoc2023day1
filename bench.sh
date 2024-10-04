@@ -10,7 +10,7 @@ hyperfine -w 2 'python3 -OO python/day1.py input.txt' \
                 ./bin/day1-fs
 
 hyperfine -w 2 -r 300 'gawk -O -f awk/day1.awk input.txt' \
-                 ./bin/day1-hs ./bin/day1-myr ./bin/day1-sn
+                 ./bin/day1-hs ./bin/day1-myr ./bin/day1-roc ./bin/day1-sn
 
 hyperfine -w 2 -r 500 ./bin/day1-c ./bin/day1-c3 ./bin/day1-cpp \
                 ./bin/day1-go ./bin/day1-ml \
